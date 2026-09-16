@@ -1,1 +1,9 @@
-Screenshots for the README are generated from the running app (`?sample=inbox-triage&shot=og` and `?shot=card`).
+Screenshots captured from the running app.
+
+| File | What |
+| --- | --- |
+| `app-desktop.png` | Split paste / GREEN report card |
+| `card-green.png` | PNG export of the inbox-triage card |
+| `app-mobile.png` | Stacked mobile layout |
+
+Useful query params: `?sample=inbox-triage`, `?shot=card`, `?shot=og`.
