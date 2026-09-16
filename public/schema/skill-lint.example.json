@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "skill-lint/v1",
+  "id": "SL-4F2A",
+  "skillName": "inbox-triage",
+  "score": 100,
+  "grade": "A",
+  "band": "GREEN",
+  "findings": [],
+  "passed": [
+    { "id": "frontmatter", "title": "YAML frontmatter present" },
+    { "id": "description-use-when", "title": "Description says when to use" },
+    { "id": "steps", "title": "Numbered or clear steps" },
+    { "id": "refuse", "title": "Refuse / never-do section" }
+  ],
+  "heuristic": true,
+  "lintedAt": "2026-09-16T17:00:00.000Z",
+  "charCount": 1280,
+  "summary": "inbox-triage graded A GREEN — all checks clear.",
+  "suggestedMarkdown": "---\nname: inbox-triage\ndescription: Use this when unread mail from overnight needs sorting into act, hold, or archive.\n---\n"
+}

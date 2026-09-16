@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/smfworks/skill-lint/blob/main/public/schema/skill-lint.schema.json",
+  "title": "SkillLint",
+  "description": "Lint result for a Hermes/OpenClaw SKILL.md. Skill Lint prints this score card. Other tools can emit the same shape.",
+  "$defs": {
+    "Band": {
+      "type": "string",
+      "enum": ["GREEN", "YELLOW", "RED"]
+    },
+    "Grade": {
+      "type": "string",
+      "enum": ["A", "B", "C", "D", "F"]
+    },
+    "Severity": {
+      "type": "string",
+      "enum": ["error", "warn", "info"]
+    },
+    "Finding": {
+      "type": "object",
+      "required": ["id", "title", "severity", "detail", "hint", "weight", "deducted"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "severity": { "$ref": "#/$defs/Severity" },
+        "detail": { "type": "string" },
+        "hint": {
+          "type": "string",
+          "description": "One-line fix hint printed on the card."
+        },
+        "weight": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "deducted": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "PassedCheck": {
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" }
+      }
+    },
+    "LintInput": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "markdown": {
+          "type": "string",
+          "description": "Raw SKILL.md. When present, Skill Lint runs the heuristic instead of trusting a precomputed score."
+        }
+      }
+    },
+    "LintResult": {
+      "type": "object",
+      "required": ["schemaVersion", "score", "grade", "band", "findings", "heuristic"],
+      "additionalProperties": true,
+      "properties": {
+        "schemaVersion": { "type": "string", "const": "skill-lint/v1" },
+        "id": {
+          "type": "string",
+          "pattern": "^SL-[0-9A-F]{4}$",
+          "description": "Card serial printed on the report."
+        },
+        "skillName": { "type": ["string", "null"] },
+        "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "grade": { "$ref": "#/$defs/Grade" },
+        "band": { "$ref": "#/$defs/Band" },
+        "findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Finding" }
+        },
+        "passed": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PassedCheck" }
+        },
+        "heuristic": { "type": "boolean", "const": true },
+        "lintedAt": { "type": "string", "format": "date-time" },
+        "charCount": { "type": "integer", "minimum": 0 },
+        "suggestedMarkdown": {
+          "type": "string",
+          "description": "Optional repaired SKILL.md draft."
+        },
+        "summary": { "type": "string" }
+      }
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/LintInput" },
+    { "$ref": "#/$defs/LintResult" }
+  ]
+}
