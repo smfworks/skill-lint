@@ -197,7 +197,7 @@ export default function App() {
     <div className="page">
       <div className="ambient" aria-hidden="true" />
       <Header />
-      <SisterStrip />
+      <SisterStrip current="skill-lint" />
       <main className="layout">
         <Composer
           raw={raw}

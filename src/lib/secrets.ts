@@ -8,6 +8,7 @@ export interface SecretHit {
 const PLACEHOLDER =
   /\b(YOUR[_-]?[A-Z0-9_]+|REPLACE[_-]?ME|REDACTED|TODO|CHANGEME|xxx+|sk-\.\.\.)\b/i;
 
+/** Keep token prefixes in sync with redact-before-share/src/lib/redact.ts. */
 const PATTERNS: Array<{ kind: string; regex: RegExp }> = [
   {
     kind: "assignment",
@@ -16,7 +17,11 @@ const PATTERNS: Array<{ kind: string; regex: RegExp }> = [
   },
   {
     kind: "sk-token",
-    regex: /\bsk-(?:live|test|proj|ant|admin)?-?[A-Za-z0-9]{12,}\b/g,
+    regex: /\bsk-(?:svcacct|live|test|proj|ant|admin)?-?[A-Za-z0-9_-]{12,}\b/g,
+  },
+  {
+    kind: "xai-token",
+    regex: /\bxai-[A-Za-z0-9_-]{20,}\b/g,
   },
   {
     kind: "bearer",
@@ -24,15 +29,23 @@ const PATTERNS: Array<{ kind: string; regex: RegExp }> = [
   },
   {
     kind: "github-pat",
-    regex: /\b(?:ghp|github_pat)_[A-Za-z0-9_]{20,}\b/g,
+    regex: /\b(?:ghp|gho|ghu|ghs|ghr|github_pat)_[A-Za-z0-9_]{20,}\b/g,
   },
   {
     kind: "slack",
     regex: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g,
   },
   {
+    kind: "npm-token",
+    regex: /\bnpm_[A-Za-z0-9]{20,}\b/g,
+  },
+  {
+    kind: "google-key",
+    regex: /\bAIza[0-9A-Za-z_-]{20,}\b/g,
+  },
+  {
     kind: "aws-key",
-    regex: /\bAKIA[0-9A-Z]{16}\b/g,
+    regex: /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g,
   },
   {
     kind: "private-key",
