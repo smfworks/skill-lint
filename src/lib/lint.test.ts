@@ -118,6 +118,14 @@ describe("findSecrets", () => {
     assert.ok(hits.some((hit) => hit.kind === "assignment" || hit.kind === "sk-token"));
   });
 
+  it("flags xai- and sk-svcacct- prefixes", () => {
+    const hits = findSecrets(
+      "xai-abcdefghijklmnopqrstuvwxyz0123456789ABCD\nsk-svcacct-abcdefghijklmnopqrstuvwxyz012345",
+    );
+    assert.ok(hits.some((hit) => hit.kind === "xai-token"));
+    assert.ok(hits.some((hit) => hit.kind === "sk-token"));
+  });
+
   it("does not flag inbox-triage", () => {
     assert.equal(findSecrets(loadSample("inbox-triage")).length, 0);
   });
