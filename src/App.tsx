@@ -14,6 +14,7 @@ import { FixedPreview } from "./components/FixedPreview";
 import { Header } from "./components/Header";
 import { ScoreCard } from "./components/ScoreCard";
 import { SisterStrip } from "./components/SisterStrip";
+import { HandoffBanner } from "./components/HandoffBanner";
 import { Toast } from "./components/Toast";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DragEvent } from "react";
@@ -197,7 +198,8 @@ export default function App() {
     <div className="page">
       <div className="ambient" aria-hidden="true" />
       <Header />
-      <SisterStrip current="skill-lint" />
+      <SisterStrip current="skill-lint" payload={result?.suggestedMarkdown || raw} />
+      <HandoffBanner onPaste={(text) => { setRaw(text); setSampleId(null); }} />
       <main className="layout">
         <Composer
           raw={raw}

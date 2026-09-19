@@ -1,3 +1,5 @@
+import { findTokenHits } from "./kit-tokens.ts";
+
 export interface SecretHit {
   kind: string;
   excerpt: string;
@@ -8,54 +10,8 @@ export interface SecretHit {
 const PLACEHOLDER =
   /\b(YOUR[_-]?[A-Z0-9_]+|REPLACE[_-]?ME|REDACTED|TODO|CHANGEME|xxx+|sk-\.\.\.)\b/i;
 
-/** Keep token prefixes in sync with redact-before-share/src/lib/redact.ts. */
-const PATTERNS: Array<{ kind: string; regex: RegExp }> = [
-  {
-    kind: "assignment",
-    regex:
-      /(?:api[_-]?key|secret[_-]?key|access[_-]?token|auth[_-]?token|private[_-]?key)\s*[:=]\s*['"]?[^\s'"]{8,}/gi,
-  },
-  {
-    kind: "sk-token",
-    regex: /\bsk-(?:svcacct|live|test|proj|ant|admin)?-?[A-Za-z0-9_-]{12,}\b/g,
-  },
-  {
-    kind: "xai-token",
-    regex: /\bxai-[A-Za-z0-9_-]{20,}\b/g,
-  },
-  {
-    kind: "bearer",
-    regex: /\bBearer\s+[A-Za-z0-9._\-+=\/]{20,}/gi,
-  },
-  {
-    kind: "github-pat",
-    regex: /\b(?:ghp|gho|ghu|ghs|ghr|github_pat)_[A-Za-z0-9_]{20,}\b/g,
-  },
-  {
-    kind: "slack",
-    regex: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g,
-  },
-  {
-    kind: "npm-token",
-    regex: /\bnpm_[A-Za-z0-9]{20,}\b/g,
-  },
-  {
-    kind: "google-key",
-    regex: /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  },
-  {
-    kind: "aws-key",
-    regex: /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g,
-  },
-  {
-    kind: "private-key",
-    regex: /-----BEGIN [A-Z ]*PRIVATE KEY-----/g,
-  },
-  {
-    kind: "jwt",
-    regex: /\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g,
-  },
-];
+const ASSIGNMENT =
+  /(?:api[_-]?key|secret[_-]?key|access[_-]?token|auth[_-]?token|private[_-]?key)\s*[:=]\s*['"]?[^\s'"]{8,}/gi;
 
 function shannon(text: string): number {
   const freq = new Map<string, number>();
@@ -70,7 +26,7 @@ function shannon(text: string): number {
 
 function looksLikeUrlOrPath(text: string, source: string, index: number): boolean {
   const before = source.slice(Math.max(0, index - 8), index);
-  if (/https?:\/\/$/i.test(before) || /[\w.-]$/.test(before) && before.includes("://")) return true;
+  if (/https?:\/\/$/i.test(before) || (/[\w.-]$/.test(before) && before.includes("://"))) return true;
   if (/^https?:\/\//i.test(text)) return true;
   if (/^[./~]/.test(text) || text.includes("/")) return true;
   return false;
@@ -108,18 +64,24 @@ function clip(value: string): string {
 
 export function findSecrets(source: string): SecretHit[] {
   const hits: SecretHit[] = [];
-  for (const { kind, regex } of PATTERNS) {
-    regex.lastIndex = 0;
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(source))) {
-      if (PLACEHOLDER.test(match[0])) continue;
-      hits.push({
-        kind,
-        excerpt: clip(match[0]),
-        start: match.index,
-        end: match.index + match[0].length,
-      });
-    }
+  for (const token of findTokenHits(source)) {
+    hits.push({
+      kind: token.kind,
+      excerpt: clip(source.slice(token.start, token.end)),
+      start: token.start,
+      end: token.end,
+    });
+  }
+  ASSIGNMENT.lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = ASSIGNMENT.exec(source))) {
+    if (PLACEHOLDER.test(match[0])) continue;
+    hits.push({
+      kind: "assignment",
+      excerpt: clip(match[0]),
+      start: match.index,
+      end: match.index + match[0].length,
+    });
   }
   hits.push(...highEntropyHits(source));
   hits.sort((a, b) => a.start - b.start);
