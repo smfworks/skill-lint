@@ -1058,3 +1058,9 @@ body.shot-og textarea {
     width: 100%;
   }
 }
+
+
+.handoff-error {
+  color: var(--ember-soft);
+  font-size: 12px;
+}
