@@ -198,8 +198,8 @@ export default function App() {
     <div className="page">
       <div className="ambient" aria-hidden="true" />
       <Header />
-      <SisterStrip current="skill-lint" payload={result?.suggestedMarkdown || raw} />
-      <HandoffBanner onPaste={(text) => { setRaw(text); setSampleId(null); }} />
+      <SisterStrip current="skill-lint" payload={result?.suggestedMarkdown || raw} kind="skill-md" />
+      <HandoffBanner accept={["skill-md", "plain"]} onPaste={(text) => { setRaw(text); setSampleId(null); }} />
       <main className="layout">
         <Composer
           raw={raw}
